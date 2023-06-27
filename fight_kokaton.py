@@ -158,7 +158,7 @@ class Explosion:
                       pg.transform.flip
                      (pg.image.load("ex03/fig/explosion.gif")
                       , True, True),]  #上下左右反対
-        self.life = 500
+        self.life = 100  #爆発している時間
         self.img = self.exps[self.life%4]
         self.rct = self.img.get_rect()
         self.rct.center = bomb.rct.center
@@ -219,24 +219,27 @@ def main():
         
         for i, bomb in enumerate(bombs):
             for j, beam in enumerate(beams):
-                if bomb.rct.colliderect(beam.rct):
-                    exps[i] = Explosion(bomb)
-                    exps[i].check = 1
-                    bombs[i] = None
-                    beams[j] = None
-                    score.score += 1  #爆弾を打ち落としたら+1点
-                    bird.change_img(6, screen)
-                    pg.display.update()
+                if beam is not None:
+                    if bomb.rct.colliderect(beam.rct):
+                        exps[i] = Explosion(bomb)
+                        exps[i].check = 1
+                        bombs[i] = None
+                        beams[j] = None
+                        score.score += 1  #爆弾を打ち落としたら+1点
+                        bird.change_img(6, screen)
+                        pg.display.update()
+
+        for i, beam in enumerate(beams):
+            #ビームが画面外に出たらビームをリストから消す
+            if beam is not None:
+                if beam.rct.left >= WIDTH or beam.rct.right <= 0:
+                    beams[i] = None
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         score.update(screen)
         bombs = [bomb for bomb in bombs if bomb is not None]
         exps = [exp for exp in exps if exp.life is not 0]
-        for i, beam in enumerate(beams):
-            #ビームが画面外に出たらビームをリストから消す
-            if beam.rct.left >= WIDTH or beam.rct.right <= 0:
-                beams[i] is None
         beams = [beam for beam in beams if beam is not None]
         for exp in exps:
             if exp.check == 1:
