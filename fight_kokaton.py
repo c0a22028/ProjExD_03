@@ -146,18 +146,11 @@ class Explosion:
     爆発エフェクトに関するクラス
     """
     def __init__(self, bomb: Bomb):
-        self.exps = [pg.transform.flip
-                     (pg.image.load("ex03/fig/explosion.gif")
-                      , False, False),  #オリジナル
-                      pg.transform.flip
-                     (pg.image.load("ex03/fig/explosion.gif")
-                      , True, False),  #左右反対
-                      pg.transform.flip
-                     (pg.image.load("ex03/fig/explosion.gif")
-                      , False, True),  #上下反対
-                      pg.transform.flip
-                     (pg.image.load("ex03/fig/explosion.gif")
-                      , True, True),]  #上下左右反対
+        img0 = pg.image.load("ex03/fig/explosion.gif")
+        self.exps = [pg.transform.flip(img0, False, False),  #オリジナル
+                     pg.transform.flip(img0, True, False),  #左右反対
+                     pg.transform.flip(img0, False, True),  #上下反対
+                     pg.transform.flip(img0, True, True),]  #上下左右反対
         self.life = 100  #爆発している時間
         self.img = self.exps[self.life%4]
         self.rct = self.img.get_rect()
