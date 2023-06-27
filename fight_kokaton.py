@@ -141,6 +141,35 @@ class Beam:
         screen.blit(self.img, self.rct)
 
 
+class Explosion:
+    """
+    爆発エフェクトに関するクラス
+    """
+    def __init__(self, bomb: Bomb):
+        self.exps = [pg.transform.flip
+                     (pg.image.load("ex03/fig/explosion.gif")
+                      , False, False),  #オリジナル
+                      pg.transform.flip
+                     (pg.image.load("ex03/fig/explosion.gif")
+                      , True, False),  #左右反対
+                      pg.transform.flip
+                     (pg.image.load("ex03/fig/explosion.gif")
+                      , False, True),  #上下反対
+                      pg.transform.flip
+                     (pg.image.load("ex03/fig/explosion.gif")
+                      , True, True),]  #上下左右反対
+        self.life = 500
+        self.img = self.exps[self.life%4]
+        self.rct = self.img.get_rect()
+        self.rct.center = bomb.rct.center
+        self.check = 0
+
+    def update(self, screen: pg.Surface):
+        self.life -= 1
+        self.img = self.exps[self.life%4]
+        screen.blit(self.img, self.rct)
+
+
 def main():
     pg.display.set_caption("たたかえ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))    
@@ -148,6 +177,7 @@ def main():
     bird = Bird(3, (900, 400))
     # bomb = Bomb((255, 0, 0), 10)
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+    exps = [Explosion(bomb) for bomb in bombs]
     beam = None
 
     clock = pg.time.Clock()
@@ -172,6 +202,8 @@ def main():
         for i, bomb in enumerate(bombs):
             if beam is not None:
                 if bomb.rct.colliderect(beam.rct):
+                    exps[i] = Explosion(bomb)
+                    exps[i].check = 1
                     bombs[i] = None
                     beam = None
                     bird.change_img(6, screen)
@@ -180,6 +212,10 @@ def main():
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         bombs = [bomb for bomb in bombs if bomb is not None]
+        exps = [exp for exp in exps if exp.life is not 0]
+        for exp in exps:
+            if exp.check == 1:
+                exp.update(screen)
         for bomb in bombs:
             bomb.update(screen)
         if beam is not None:
