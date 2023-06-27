@@ -196,7 +196,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     exps = [Explosion(bomb) for bomb in bombs]
     score = Score()
-    beam = None
+    beams = []
 
     clock = pg.time.Clock()
     tmr = 0
@@ -205,7 +205,7 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beam = Beam(bird)
+                beams.append(Beam(bird))
         
         screen.blit(bg_img, [0, 0])
 
@@ -218,12 +218,12 @@ def main():
                 return
         
         for i, bomb in enumerate(bombs):
-            if beam is not None:
+            for j, beam in enumerate(beams):
                 if bomb.rct.colliderect(beam.rct):
                     exps[i] = Explosion(bomb)
                     exps[i].check = 1
                     bombs[i] = None
-                    beam = None
+                    beams[j] = None
                     score.score += 1  #爆弾を打ち落としたら+1点
                     bird.change_img(6, screen)
                     pg.display.update()
@@ -233,12 +233,17 @@ def main():
         score.update(screen)
         bombs = [bomb for bomb in bombs if bomb is not None]
         exps = [exp for exp in exps if exp.life is not 0]
+        for i, beam in enumerate(beams):
+            #ビームが画面外に出たらビームをリストから消す
+            if beam.rct.left >= WIDTH or beam.rct.right <= 0:
+                beams[i] is None
+        beams = [beam for beam in beams if beam is not None]
         for exp in exps:
             if exp.check == 1:
                 exp.update(screen)
         for bomb in bombs:
             bomb.update(screen)
-        if beam is not None:
+        for beam in beams:
             beam.update(screen)
         pg.display.update()
         tmr += 1
